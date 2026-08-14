@@ -152,6 +152,29 @@ function generateFixtures(leagueId) {
   return fixtures;
 }
 
+// Single round-robin for 4-team World Cup groups: each team plays each other
+// once, 3 matchdays of 2 matches, standard "circle method" fixed at 4 teams.
+function generateGroupFixtures(leagueId) {
+  const teams = LEAGUES[leagueId].teams.map(t => t.id);
+  let arr = teams.slice();
+  const half = arr.length / 2;
+  const fixtures = [];
+  let matchId = 1;
+  for (let r = 0; r < arr.length - 1; r++) {
+    for (let i = 0; i < half; i++) {
+      const home = arr[i];
+      const away = arr[arr.length - 1 - i];
+      const pair = r % 2 === 0 ? [home, away] : [away, home];
+      fixtures.push({ id: "m" + matchId++, matchday: r + 1, home: pair[0], away: pair[1] });
+    }
+    const fixed = arr[0];
+    const rest = arr.slice(1);
+    rest.unshift(rest.pop());
+    arr = [fixed, ...rest];
+  }
+  return fixtures;
+}
+
 function seasonKey(leagueId, season) {
   return leagueId + "__" + season;
 }
@@ -159,8 +182,9 @@ function seasonKey(leagueId, season) {
 function ensureSeason(leagueId, season) {
   const key = seasonKey(leagueId, season);
   if (!STATE.seasons[key]) {
+    const isGroup = LEAGUES[leagueId] && LEAGUES[leagueId].isWorldCupGroup;
     STATE.seasons[key] = {
-      fixtures: generateFixtures(leagueId),
+      fixtures: isGroup ? generateGroupFixtures(leagueId) : generateFixtures(leagueId),
       generatedAt: Date.now()
     };
     STATE.results[key] = {};
@@ -234,7 +258,8 @@ function clearResults(leagueId, season) {
 
 function regenerateFixtures(leagueId, season) {
   const key = seasonKey(leagueId, season);
-  STATE.seasons[key] = { fixtures: generateFixtures(leagueId), generatedAt: Date.now() };
+  const isGroup = LEAGUES[leagueId] && LEAGUES[leagueId].isWorldCupGroup;
+  STATE.seasons[key] = { fixtures: isGroup ? generateGroupFixtures(leagueId) : generateFixtures(leagueId), generatedAt: Date.now() };
   STATE.results[key] = {};
   saveState();
 }
