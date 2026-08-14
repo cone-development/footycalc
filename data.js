@@ -141,3 +141,35 @@ const LEAGUES = {
 };
 
 const SEASONS = ["23/24", "24/25", "25/26", "26/27"];
+
+// ===== WORLD CUP 2026 =====
+// Official final draw (Dec 5, 2025), 12 groups of 4. Per request: Bosnia and
+// Herzegovina (Group B) replaced with Serbia.
+const WORLDCUP_RAW_GROUPS = {
+  A: [["mex", "Mexico", 78], ["kor", "South Korea", 74], ["rsa", "South Africa", 68], ["cze", "Czechia", 73]],
+  B: [["can", "Canada", 74], ["sui", "Switzerland", 79], ["qat", "Qatar", 68], ["srb", "Serbia", 76]],
+  C: [["bra", "Brazil", 87], ["mar", "Morocco", 80], ["sco", "Scotland", 75], ["hai", "Haiti", 63]],
+  D: [["usa", "USA", 78], ["par", "Paraguay", 71], ["aus", "Australia", 72], ["tur", "Turkiye", 78]],
+  E: [["ger", "Germany", 85], ["ecu", "Ecuador", 73], ["civ", "Ivory Coast", 76], ["cuw", "Curacao", 62]],
+  F: [["ned", "Netherlands", 84], ["jpn", "Japan", 79], ["tun", "Tunisia", 70], ["swe", "Sweden", 75]],
+  G: [["bel", "Belgium", 81], ["irn", "Iran", 72], ["egy", "Egypt", 73], ["nzl", "New Zealand", 65]],
+  H: [["esp", "Spain", 88], ["uru", "Uruguay", 79], ["ksa", "Saudi Arabia", 68], ["cpv", "Cape Verde", 64]],
+  I: [["fra", "France", 87], ["sen", "Senegal", 76], ["nor", "Norway", 77], ["irq", "Iraq", 64]],
+  J: [["arg", "Argentina", 89], ["aut", "Austria", 76], ["alg", "Algeria", 73], ["jor", "Jordan", 63]],
+  K: [["por", "Portugal", 86], ["col", "Colombia", 79], ["uzb", "Uzbekistan", 68], ["cod", "DR Congo", 65]],
+  L: [["eng", "England", 85], ["cro", "Croatia", 79], ["pan", "Panama", 68], ["gha", "Ghana", 71]]
+};
+
+const WORLDCUP_GROUP_ORDER = Object.keys(WORLDCUP_RAW_GROUPS);
+
+Object.entries(WORLDCUP_RAW_GROUPS).forEach(([letter, teams]) => {
+  LEAGUES["wc_" + letter] = {
+    name: "World Cup — Group " + letter,
+    country: "FIFA World Cup 2026",
+    color: "#d7a83d",
+    isWorldCupGroup: true,
+    groupLetter: letter,
+    teams: teams.map(([id, name, ovr]) => ({ id, name, short: id.toUpperCase(), ovr }))
+  };
+});
+
