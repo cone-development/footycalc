@@ -19,6 +19,7 @@ function defaultState() {
     seasons: {},         // { "leagueId__season": { fixtures: [...], generatedAt } }
     results: {},          // { "leagueId__season": { matchId: {home, away} } }
     players: [],           // custom players
+    knockout: { built: false, matches: {} },
     activeLeague: "epl",
     activeSeason: "25/26"
   };
@@ -361,6 +362,70 @@ function leaderboard() {
     if (b.assists !== a.assists) return b.assists - a.assists;
     return b.rating - a.rating;
   });
+}
+
+function findTeamByName(leagueId, rawName) {
+  const teams = LEAGUES[leagueId].teams;
+  const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const target = norm(rawName);
+  // exact normalized match first
+  let hit = teams.find(t => norm(t.name) === target || norm(t.short) === target);
+  if (hit) return hit;
+  // common nickname / shorthand aliases
+  const ALIASES = {
+    manutd: "mun", manunited: "mun", manchesterunited: "mun",
+    mancity: "mci", manchestercity: "mci",
+    spurs: "tot", tottenham: "tot",
+    wolves: "wol", wolverhampton: "wol",
+    newcastle: "new", forest: "nfo", nottsforest: "nfo", nottinghamforest: "nfo",
+    brighton: "bha", westham: "whu", palace: "cry", crystalpalace: "cry",
+    villa: "avl", astonvilla: "avl", leeds: "lee", sunderland: "sun",
+    bournemouth: "bou", brentford: "bre", burnley: "bur", everton: "eve",
+    fulham: "ful", arsenal: "ars", chelsea: "che", liverpool: "liv"
+  };
+  if (ALIASES[target]) hit = teams.find(t => t.id === ALIASES[target]);
+  if (hit) return hit;
+  // loose substring match as a last resort
+  hit = teams.find(t => norm(t.name).includes(target) || target.includes(norm(t.name)));
+  return hit || null;
+}
+
+// Parses lines like "Arsenal 2-1 Chelsea" or "Arsenal 2 - 1 Chelsea".
+// Returns { applied: [...], unmatched: [...], ambiguous: [...] }
+function bulkImportResults(leagueId, season, text) {
+  const fixtures = getFixtures(leagueId, season);
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const applied = [], unmatched = [], noFixture = [];
+
+  lines.forEach(line => {
+    const m = line.match(/^(.+?)\s+(\d+)\s*[-:]\s*(\d+)\s+(.+)$/);
+    if (!m) { unmatched.push(line); return; }
+    const [, homeRaw, hs, as, awayRaw] = m;
+    const homeTeam = findTeamByName(leagueId, homeRaw.trim());
+    const awayTeam = findTeamByName(leagueId, awayRaw.trim());
+    if (!homeTeam || !awayTeam) { unmatched.push(line); return; }
+
+    // find an unplayed fixture between these two teams (either home/away order),
+    // preferring the correct order, earliest matchday first
+    const results = getResults(leagueId, season);
+    let candidates = fixtures.filter(f =>
+      (f.home === homeTeam.id && f.away === awayTeam.id) ||
+      (f.home === awayTeam.id && f.away === homeTeam.id)
+    ).sort((a, b) => a.matchday - b.matchday);
+    let exact = candidates.find(f => f.home === homeTeam.id && !results[f.id]);
+    let fixture = exact || candidates.find(f => !results[f.id]);
+
+    if (!fixture) { noFixture.push(line); return; }
+
+    if (fixture.home === homeTeam.id) {
+      setResult(leagueId, season, fixture.id, hs, as);
+    } else {
+      setResult(leagueId, season, fixture.id, as, hs);
+    }
+    applied.push({ line, matchday: fixture.matchday, home: homeTeam.name, away: awayTeam.name });
+  });
+
+  return { applied, unmatched, noFixture };
 }
 
 function toast(msg) {
