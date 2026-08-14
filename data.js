@@ -9,25 +9,25 @@ const LEAGUES = {
     color: "#3d195b",
     teams: [
       { id: "ars", name: "Arsenal", short: "ARS", ovr: 87 },
-      { id: "avl", name: "Aston Villa", short: "AVL", ovr: 80 },
+      { id: "avl", name: "Aston Villa", short: "AST", ovr: 80 },
       { id: "bou", name: "Bournemouth", short: "BOU", ovr: 76 },
       { id: "bre", name: "Brentford", short: "BRE", ovr: 77 },
       { id: "bha", name: "Brighton", short: "BHA", ovr: 79 },
-      { id: "bur", name: "Burnley", short: "BUR", ovr: 72 },
       { id: "che", name: "Chelsea", short: "CHE", ovr: 84 },
+      { id: "cov", name: "Coventry City", short: "COV", ovr: 66 },
       { id: "cry", name: "Crystal Palace", short: "CRY", ovr: 78 },
       { id: "eve", name: "Everton", short: "EVE", ovr: 76 },
       { id: "ful", name: "Fulham", short: "FUL", ovr: 77 },
+      { id: "hull", name: "Hull City", short: "HULL", ovr: 65 },
+      { id: "ips", name: "Ipswich Town", short: "IPS", ovr: 67 },
       { id: "lee", name: "Leeds United", short: "LEE", ovr: 73 },
       { id: "liv", name: "Liverpool", short: "LIV", ovr: 88 },
-      { id: "mci", name: "Manchester City", short: "MCI", ovr: 89 },
-      { id: "mun", name: "Manchester United", short: "MUN", ovr: 82 },
+      { id: "mci", name: "Manchester City", short: "CITY", ovr: 89 },
+      { id: "mun", name: "Manchester United", short: "MUTD", ovr: 82 },
       { id: "new", name: "Newcastle United", short: "NEW", ovr: 83 },
-      { id: "nfo", name: "Nottingham Forest", short: "NFO", ovr: 78 },
+      { id: "nfo", name: "Nottingham Forest", short: "NOT", ovr: 78 },
       { id: "sun", name: "Sunderland", short: "SUN", ovr: 73 },
-      { id: "tot", name: "Tottenham Hotspur", short: "TOT", ovr: 81 },
-      { id: "whu", name: "West Ham United", short: "WHU", ovr: 77 },
-      { id: "wol", name: "Wolverhampton", short: "WOL", ovr: 75 }
+      { id: "tot", name: "Tottenham Hotspur", short: "TOT", ovr: 81 }
     ]
   },
   laliga: {
