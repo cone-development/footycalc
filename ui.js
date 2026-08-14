@@ -25,24 +25,47 @@ function render() {
   renderNav();
 }
 
+function isWorldCupActive() {
+  return STATE.activeLeague.startsWith("wc_");
+}
+
 function renderHeader() {
   const tabs = document.getElementById("league-tabs");
   tabs.innerHTML = "";
   Object.entries(LEAGUES).forEach(([id, lg]) => {
+    if (lg.isWorldCupGroup) return; // groups shown in season-row instead
+  });
+  const CLUB_LEAGUES = Object.entries(LEAGUES).filter(([id, lg]) => !lg.isWorldCupGroup);
+  CLUB_LEAGUES.forEach(([id, lg]) => {
     tabs.appendChild(el("button", {
       class: "league-tab" + (STATE.activeLeague === id ? " active" : ""),
       onclick: () => { STATE.activeLeague = id; saveState(); render(); }
     }, lg.name));
   });
+  tabs.appendChild(el("button", {
+    class: "league-tab" + (isWorldCupActive() ? " active" : ""),
+    style: "border-color:var(--gold);",
+    onclick: () => { STATE.activeLeague = "wc_" + WORLDCUP_GROUP_ORDER[0]; STATE.activeSeason = "2026"; saveState(); render(); }
+  }, "🏆 World Cup 2026"));
 
   const seasons = document.getElementById("season-row");
   seasons.innerHTML = "";
-  SEASONS.forEach(s => {
-    seasons.appendChild(el("button", {
-      class: "season-pill" + (STATE.activeSeason === s ? " active" : ""),
-      onclick: () => { STATE.activeSeason = s; saveState(); render(); }
-    }, s));
-  });
+  if (isWorldCupActive()) {
+    WORLDCUP_GROUP_ORDER.forEach(letter => {
+      const leagueId = "wc_" + letter;
+      seasons.appendChild(el("button", {
+        class: "season-pill" + (STATE.activeLeague === leagueId ? " active" : ""),
+        onclick: () => { STATE.activeLeague = leagueId; saveState(); render(); }
+      }, "Group " + letter));
+    });
+  } else {
+    SEASONS.forEach(s => {
+      seasons.appendChild(el("button", {
+        class: "season-pill" + (STATE.activeSeason === s ? " active" : ""),
+        onclick: () => { STATE.activeSeason = s; saveState(); render(); }
+      }, s));
+    });
+  }
 }
 
 function renderNav() {
